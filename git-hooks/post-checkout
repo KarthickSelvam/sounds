@@ -1,0 +1,11 @@
+#!/bin/bash
+# post-checkout - Sound when switching branches
+
+PREV_HEAD=$1
+NEW_HEAD=$2
+BRANCH_SWITCH=$3
+
+if [ "$BRANCH_SWITCH" = "1" ]; then
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    sound neutral "Switched to $BRANCH"
+fi

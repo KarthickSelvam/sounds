@@ -1,0 +1,4 @@
+#!/bin/bash
+# pre-push - Sound before pushing
+
+sound neutral "Pushing to remote..."

@@ -1,0 +1,13 @@
+#!/bin/bash
+# post-merge - Sound after merge
+
+if [ -f .git/MERGE_HEAD ]; then
+    # Was a merge with conflicts
+    if git diff --check; then
+        sound success "Merge successful"
+    else
+        sound fail "Merge conflicts"
+    fi
+else
+    sound success "Merge complete"
+fi

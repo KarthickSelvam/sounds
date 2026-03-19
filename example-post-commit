@@ -1,0 +1,17 @@
+#!/bin/bash
+# Example post-commit hook
+# Copy to: .git/hooks/post-commit in any repo
+
+# Play a success sound after every commit
+~/sounds/play.sh success
+
+# Or get fancy — check commit message
+COMMIT_MSG=$(git log -1 --pretty=%B)
+
+if echo "$COMMIT_MSG" | grep -qi "refactor"; then
+    ~/sounds/play.sh success
+elif echo "$COMMIT_MSG" | grep -qi "fix"; then
+    ~/sounds/play.sh neutral
+elif echo "$COMMIT_MSG" | grep -qi "WIP"; then
+    ~/sounds/play.sh misc
+fi

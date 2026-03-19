@@ -1,0 +1,19 @@
+#!/bin/bash
+# post-commit - Play sound after commits
+
+COMMIT_MSG=$(git log -1 --pretty=%B)
+
+# Categorize by commit message
+if echo "$COMMIT_MSG" | grep -Eqi "^(feat|feature):"; then
+    sound success "Feature commit"
+elif echo "$COMMIT_MSG" | grep -Eqi "^(fix|bugfix):"; then
+    sound success "Bug fix committed"
+elif echo "$COMMIT_MSG" | grep -Eqi "^refactor:"; then
+    sound success "Refactor complete"
+elif echo "$COMMIT_MSG" | grep -Eqi "^(wip|temp|tmp):"; then
+    sound neutral "WIP commit"
+elif echo "$COMMIT_MSG" | grep -Eqi "^(test|tests):"; then
+    sound neutral "Test commit"
+else
+    sound neutral "Commit created"
+fi

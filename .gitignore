@@ -1,0 +1,31 @@
+# Sound files (generated/downloaded at install time via build-library.sh)
+success/*.aiff
+success/*.mp3
+success/*.wav
+fail/*.aiff
+fail/*.mp3
+fail/*.wav
+neutral/*.aiff
+neutral/*.mp3
+neutral/*.wav
+misc/*.aiff
+misc/*.mp3
+misc/*.wav
+processed/*.aiff
+processed/*.mp3
+processed/*.wav
+
+# API credentials
+.freesound_api_key
+.freesound_results.json
+
+# Event log (user-specific)
+events.log
+
+# macOS
+.DS_Store
+
+# Editor files
+*.swp
+*.swo
+*~
