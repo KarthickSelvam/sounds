@@ -58,6 +58,11 @@ cd your-repo && ~/sounds/install-git-hooks.sh  # Add hooks to existing repo
 ### Claude Integration
 - `~/sounds/claude-sounds.sh [action] [message]` - Claude can trigger contextual sounds
 - Actions: task-start, task-complete, code-written, refactor-done, test-pass, test-fail, error, bumblebee
+- See [CLAUDE_CLI_INTEGRATION.md](CLAUDE_CLI_INTEGRATION.md) for full setup
+
+### Cursor Integration
+- Uses Cursor's hooks system (v1.7+) to play sounds on file edits, shell commands, and agent completion
+- See [CURSOR_INTEGRATION.md](CURSOR_INTEGRATION.md) for full setup
 
 ## Usage
 
