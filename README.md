@@ -6,16 +6,29 @@ Audio feedback for your development workflow — like Bumblebee talking through 
 
 > **Platform:** macOS only. Requires `afplay`, `say`, and `osascript` (included with macOS).
 
-## Installation
+## Quick Install (one command)
 
 ```bash
-git clone https://github.com/karthickselvam/sounds.git ~/sounds
+curl -sL https://raw.githubusercontent.com/KarthickSelvam/sounds/main/setup.sh | bash
+```
+
+This will:
+1. Clone the repo to `~/sounds`
+2. Generate sounds from macOS system sounds + voice clips
+3. Configure Claude Code hooks (merges with your existing settings, nothing is overwritten)
+
+To uninstall: `~/sounds/uninstall.sh`
+
+### Manual Install
+
+```bash
+git clone https://github.com/KarthickSelvam/sounds.git ~/sounds
 cd ~/sounds
 ./build-library.sh                    # Generate base sounds from macOS system sounds
 ./download-bumblebee-sounds.sh        # Download robot sounds + generate voice clips
 ```
 
-Optional setup:
+Optional git integration:
 ```bash
 ./setup-global-git-hooks.sh           # Auto-add hooks to new repos
 cd your-repo && ~/sounds/install-git-hooks.sh  # Add hooks to existing repo
