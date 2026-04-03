@@ -1,6 +1,6 @@
 #!/bin/bash
 # setup.sh - One-command Bumblebee Sound System installer
-# Usage: curl -s https://raw.githubusercontent.com/KarthickSelvam/sounds/main/setup.sh | bash
+# Usage: curl -sL https://raw.githubusercontent.com/KarthickSelvam/sounds/main/setup.sh | bash
 set -e
 
 SOUNDS_DIR="$HOME/sounds"
@@ -19,11 +19,10 @@ echo ""
 echo "Step 1/3: Downloading Bumblebee..."
 
 if [ -d "$SOUNDS_DIR/.git" ]; then
-    echo "  Already installed at $SOUNDS_DIR, updating..."
+    echo "  Already installed, updating..."
     git -C "$SOUNDS_DIR" pull --quiet
 else
     if [ -d "$SOUNDS_DIR" ]; then
-        # Directory exists but isn't a git repo (sound files from a previous setup)
         BACKUP="$SOUNDS_DIR.backup-$(date +%Y%m%d%H%M%S)"
         echo "  Backing up existing $SOUNDS_DIR to $BACKUP"
         mv "$SOUNDS_DIR" "$BACKUP"
@@ -33,23 +32,36 @@ fi
 echo "  Done."
 echo ""
 
-# ─── Step 2: Generate sounds ─────────────────────────────────────────
-echo "Step 2/3: Generating sounds..."
+# ─── Step 2: Add macOS system sounds ─────────────────────────────────
+echo "Step 2/3: Adding macOS system sounds..."
 
-# Build from macOS system sounds
-"$SOUNDS_DIR/build-library.sh" > /dev/null 2>&1 || true
-
-# Generate voice clips + download robot sounds
-"$SOUNDS_DIR/download-bumblebee-sounds.sh" > /dev/null 2>&1 || true
-
-TOTAL=$(find "$SOUNDS_DIR"/{success,fail,neutral,misc} -type f \( -name "*.aiff" -o -name "*.mp3" \) 2>/dev/null | wc -l | tr -d ' ')
-echo "  Generated $TOTAL sounds."
+SYS="/System/Library/Sounds"
+if [ -d "$SYS" ]; then
+    cp "$SYS/Glass.aiff"     "$SOUNDS_DIR/success/glass.aiff"     2>/dev/null || true
+    cp "$SYS/Hero.aiff"      "$SOUNDS_DIR/success/hero.aiff"      2>/dev/null || true
+    cp "$SYS/Bottle.aiff"    "$SOUNDS_DIR/success/bottle.aiff"    2>/dev/null || true
+    cp "$SYS/Tink.aiff"      "$SOUNDS_DIR/success/tink.aiff"      2>/dev/null || true
+    cp "$SYS/Sosumi.aiff"    "$SOUNDS_DIR/success/sosumi.aiff"    2>/dev/null || true
+    cp "$SYS/Basso.aiff"     "$SOUNDS_DIR/fail/basso.aiff"        2>/dev/null || true
+    cp "$SYS/Submarine.aiff" "$SOUNDS_DIR/fail/submarine.aiff"    2>/dev/null || true
+    cp "$SYS/Sosumi.aiff"    "$SOUNDS_DIR/fail/sosumi.aiff"       2>/dev/null || true
+    cp "$SYS/Ping.aiff"      "$SOUNDS_DIR/neutral/ping.aiff"      2>/dev/null || true
+    cp "$SYS/Pop.aiff"       "$SOUNDS_DIR/neutral/pop.aiff"       2>/dev/null || true
+    cp "$SYS/Purr.aiff"      "$SOUNDS_DIR/neutral/purr.aiff"      2>/dev/null || true
+    cp "$SYS/Blow.aiff"      "$SOUNDS_DIR/neutral/blow.aiff"      2>/dev/null || true
+    cp "$SYS/Funk.aiff"      "$SOUNDS_DIR/misc/funk.aiff"         2>/dev/null || true
+    cp "$SYS/Frog.aiff"      "$SOUNDS_DIR/misc/frog.aiff"         2>/dev/null || true
+    cp "$SYS/Morse.aiff"     "$SOUNDS_DIR/misc/morse.aiff"        2>/dev/null || true
+    echo "  Added 15 system sounds."
+else
+    echo "  macOS system sounds not found (non-Mac?). Skipping."
+    echo "  The included sounds will still work fine."
+fi
 echo ""
 
 # ─── Step 3: Configure Claude Code hooks ─────────────────────────────
 echo "Step 3/3: Configuring Claude Code hooks..."
 
-# Create hooks directory
 mkdir -p "$HOOKS_DIR"
 
 # Write the hook script
@@ -86,24 +98,6 @@ HOOKEOF
 chmod +x "$HOOK_SCRIPT"
 
 # Merge hooks into existing settings.json (never overwrite)
-BUMBLEBEE_HOOKS=$(cat << 'JSON'
-{
-  "SessionStart": [{"hooks": [{"type": "command", "command": "HOOK_PATH session-start", "async": true}]}],
-  "PostToolUse": [
-    {"matcher": "Bash", "hooks": [{"type": "command", "command": "HOOK_PATH bash-result", "async": true}]},
-    {"matcher": "Edit|Write|MultiEdit", "hooks": [{"type": "command", "command": "HOOK_PATH file-op", "async": true}]}
-  ],
-  "Stop": [{"hooks": [{"type": "command", "command": "HOOK_PATH stop", "async": true}]}],
-  "Notification": [{"hooks": [{"type": "command", "command": "HOOK_PATH notification", "async": true}]}],
-  "SubagentStart": [{"hooks": [{"type": "command", "command": "HOOK_PATH subagent-start", "async": true}]}],
-  "SubagentStop": [{"hooks": [{"type": "command", "command": "HOOK_PATH subagent-stop", "async": true}]}]
-}
-JSON
-)
-
-# Replace placeholder with actual path
-BUMBLEBEE_HOOKS=$(echo "$BUMBLEBEE_HOOKS" | sed "s|HOOK_PATH|$HOOK_SCRIPT|g")
-
 python3 << PYEOF
 import json, os, shutil
 from datetime import datetime
@@ -111,46 +105,46 @@ from datetime import datetime
 settings_path = "$SETTINGS"
 hook_script = "$HOOK_SCRIPT"
 
-# Load new hooks
-new_hooks = json.loads('''$BUMBLEBEE_HOOKS''')
+new_hooks = {
+    "SessionStart": [{"hooks": [{"type": "command", "command": f"{hook_script} session-start", "async": True}]}],
+    "PostToolUse": [
+        {"matcher": "Bash", "hooks": [{"type": "command", "command": f"{hook_script} bash-result", "async": True}]},
+        {"matcher": "Edit|Write|MultiEdit", "hooks": [{"type": "command", "command": f"{hook_script} file-op", "async": True}]}
+    ],
+    "Stop": [{"hooks": [{"type": "command", "command": f"{hook_script} stop", "async": True}]}],
+    "Notification": [{"hooks": [{"type": "command", "command": f"{hook_script} notification", "async": True}]}],
+    "SubagentStart": [{"hooks": [{"type": "command", "command": f"{hook_script} subagent-start", "async": True}]}],
+    "SubagentStop": [{"hooks": [{"type": "command", "command": f"{hook_script} subagent-stop", "async": True}]}]
+}
 
-# Load existing settings or start fresh
 settings = {}
 if os.path.exists(settings_path):
-    # Backup first
     backup = settings_path + ".backup-" + datetime.now().strftime("%Y%m%d%H%M%S")
     shutil.copy2(settings_path, backup)
-    print(f"  Backed up settings to {backup}")
+    print(f"  Backed up settings to {os.path.basename(backup)}")
     with open(settings_path) as f:
         settings = json.load(f)
 
-# Remove any existing bumblebee hooks (to avoid duplicates on re-install)
+# Remove existing bumblebee hooks (avoid duplicates on re-install)
 if "hooks" in settings:
-    for event_name, entries in settings["hooks"].items():
+    for event_name in list(settings["hooks"].keys()):
         settings["hooks"][event_name] = [
-            entry for entry in entries
-            if not any(
-                hook_script in h.get("command", "")
-                for h in entry.get("hooks", [])
-            )
+            entry for entry in settings["hooks"][event_name]
+            if not any("bumblebee-sounds.sh" in h.get("command", "") for h in entry.get("hooks", []))
         ]
-        # Clean up empty arrays
         if not settings["hooks"][event_name]:
             del settings["hooks"][event_name]
 
-# Merge new hooks into existing
+# Merge
 if "hooks" not in settings:
     settings["hooks"] = {}
-
-for event_name, new_entries in new_hooks.items():
+for event_name, entries in new_hooks.items():
     if event_name not in settings["hooks"]:
         settings["hooks"][event_name] = []
-    settings["hooks"][event_name].extend(new_entries)
+    settings["hooks"][event_name].extend(entries)
 
-# Write back
 with open(settings_path, "w") as f:
     json.dump(settings, f, indent=2)
-
 print("  Hooks merged into settings.json")
 PYEOF
 
@@ -159,12 +153,8 @@ echo "  ╔═══════════════════════
 echo "  ║        Installation complete!        ║"
 echo "  ╚══════════════════════════════════════╝"
 echo ""
-echo "  Sounds will play automatically in Claude Code:"
-echo "    - Session start    -> Bumblebee online"
-echo "    - Command fails    -> Error sound"
-echo "    - File edited      -> Neutral blip"
-echo "    - Task complete    -> Victory sound"
+echo "  Open Claude Code -- sounds play automatically."
 echo ""
-echo "  Test it:  ~/sounds/play.sh success"
-echo "  Uninstall: ~/sounds/uninstall.sh"
+echo "  Test it:     ~/sounds/play.sh success"
+echo "  Uninstall:   ~/sounds/uninstall.sh"
 echo ""

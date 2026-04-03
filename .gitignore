@@ -1,19 +1,37 @@
-# Sound files (generated/downloaded at install time via build-library.sh)
-success/*.aiff
-success/*.mp3
-success/*.wav
-fail/*.aiff
-fail/*.mp3
-fail/*.wav
-neutral/*.aiff
-neutral/*.mp3
-neutral/*.wav
-misc/*.aiff
-misc/*.mp3
-misc/*.wav
-processed/*.aiff
-processed/*.mp3
-processed/*.wav
+# Apple macOS system sounds (not redistributable, copied at install time)
+success/glass.aiff
+success/glass-radio.aiff
+success/hero.aiff
+success/hero-radio.aiff
+success/bottle.aiff
+success/bottle-radio.aiff
+success/tink.aiff
+success/tink-radio.aiff
+success/sosumi.aiff
+success/sosumi-radio.aiff
+fail/basso.aiff
+fail/basso-radio.aiff
+fail/submarine.aiff
+fail/submarine-radio.aiff
+fail/sosumi.aiff
+fail/sosumi-radio.aiff
+neutral/ping.aiff
+neutral/ping-radio.aiff
+neutral/pop.aiff
+neutral/pop-radio.aiff
+neutral/purr.aiff
+neutral/purr-radio.aiff
+neutral/blow.aiff
+neutral/blow-radio.aiff
+misc/funk.aiff
+misc/funk-radio.aiff
+misc/frog.aiff
+misc/frog-radio.aiff
+misc/morse.aiff
+misc/morse-radio.aiff
+
+# Processed temp files
+processed/
 
 # API credentials
 .freesound_api_key

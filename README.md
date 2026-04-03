@@ -13,8 +13,8 @@ curl -sL https://raw.githubusercontent.com/KarthickSelvam/sounds/main/setup.sh |
 ```
 
 This will:
-1. Clone the repo to `~/sounds`
-2. Generate sounds from macOS system sounds + voice clips
+1. Clone the repo to `~/sounds` (sounds included)
+2. Copy a few bonus macOS system sounds (optional, skipped on non-Mac)
 3. Configure Claude Code hooks (merges with your existing settings, nothing is overwritten)
 
 To uninstall: `~/sounds/uninstall.sh`
